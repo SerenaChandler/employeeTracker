@@ -40,7 +40,7 @@ function start() {
     })
     .then((answers) => {
       switch (answers.choice) {
-        case "Add department":
+        case "Add Department":
           addDepartment();
           break;
         case "Add Role":
@@ -86,7 +86,44 @@ function addDepartment() {
     });
 }
 
-function addRole() {}
+function addRole() {
+  connection.query("SELECT name, id FROM department", (err, res) => {
+    if (err) throw err;
+
+    const departments = res.map((row) => {
+      return { name: row.name, value: row.id };
+    });
+    inquirer
+      .prompt([
+        {
+          message: "What is the new role called?",
+          name: "name",
+        },
+        {
+          type: "list",
+          message: "Which department will this role be a part of?",
+          name: "department",
+          choices: departments,
+        },
+        {
+          type: "number",
+          message: "What will the new role's salary be?",
+          name: "salary",
+        },
+      ])
+      .then((answer) => {
+        console.log(answer)
+        connection.query(
+          "INSERT INTO role (title, salary, department_id) values (?, ?, ?)",
+          [answer.name, answer.salary, answer.department],
+          (err, res) => {
+            if (err) throw err;
+            start();
+          }
+        );
+      });
+  });
+}
 
 function addEmployee() {
   connection.query("SELECT title, id FROM role", (err, res) => {
@@ -103,7 +140,7 @@ function addEmployee() {
           name: "firstName",
         },
         {
-          message: "What is the employee's  name?",
+          message: "What is the employee's last name?",
           name: "lastName",
         },
         {
@@ -112,15 +149,17 @@ function addEmployee() {
           name: "role",
           choices: names,
         },
-        // {
-        //   type: "list",
-        //   message: "Who is their manager?",
-        //   name: "manager",
-        //   choices: [],
-        // },
       ])
       .then((answers) => {
-        console.log(answers);
+        console.log(answers)
+        connection.query(
+          "INSERT INTO employee (first_name, last_name, role_id) values (?, ?, ?)",
+          [answers.firstName, answers.lastName, answers.role],
+          (err, res) => {
+            if (err) throw err;
+            start();
+          }
+        );
       });
   });
 }
