@@ -164,9 +164,26 @@ function addEmployee() {
   });
 }
 
-function viewDepartment() {}
+function viewDepartment() {  connection.query(
+  `SELECT name AS department FROM department`,
+  (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    start();
+  }
+);}
 
-function viewRoles() {}
+function viewRoles() {  
+  connection.query(
+    `SELECT title, salary, name
+    FROM department
+    LEFT JOIN role ON department.id = role.department_id`,
+  (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    start();
+  }
+);}
 
 function viewEmployee() {
   connection.query(
@@ -181,7 +198,6 @@ function viewEmployee() {
       console.table(res);
       start();
     }
-  );
-}
+  );}
 
 function UpdateEmployeeRoles() {}
